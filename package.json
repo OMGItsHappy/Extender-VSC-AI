@@ -16,6 +16,10 @@
       {
         "command": "open-ai-integration.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "open-ai-integration.showSelection",
+        "title": "Show Selection"
       }
     ]
   },
