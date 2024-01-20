@@ -42,10 +42,6 @@
         "title": "Hide Custom Pannel"
       },
       {
-        "command":"open-ai-integration.appendOutputPanel",
-        "title": "Add to Custom Pannel"
-      },
-      {
         "command":"open-ai-integration.clearOutputPanel",
         "title": "Clear Custom Pannel"
       },

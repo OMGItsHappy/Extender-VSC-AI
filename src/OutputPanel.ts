@@ -17,20 +17,21 @@ export function registerCommands(
         customOutputPanel.hide();
     });
 
-    let appendOutputPanel = vscode.commands.registerCommand('open-ai-integration.appendOutputPanel', () => {
-        customOutputPanel.show();
-        customOutputPanel.appendLine('Hello World!');
+    let clearOutputPanel = vscode.commands.registerCommand('open-ai-integration.clearOutputPanel', () => {
+        customOutputPanel.clear();
     });
 
-    context.subscriptions.push(showOutputPanel, hideOutputPanel, appendOutputPanel);
+    function clearOutputPanelAndShow(outputPanel : vscode.OutputChannel) {
+        outputPanel.clear();
+        outputPanel.show();
+    }
 
     let openAIExplainInOutputPanel = vscode.commands.registerCommand('open-ai-integration.openAIExplainInOutputPanel', async () => {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
             const selectedText = editor.document.getText(editor.selection);
 
-            customOutputPanel.show();
-            customOutputPanel.clear();
+            clearOutputPanelAndShow(customOutputPanel);
             
             const response = await openai.chat.completions.create({
                 messages:[{role: "user", content: "Please explain this: " + selectedText}],
@@ -48,5 +49,5 @@ export function registerCommands(
         }
     });
 
-    context.subscriptions.push(openAIExplainInOutputPanel);
+    context.subscriptions.push(openAIExplainInOutputPanel, showOutputPanel, hideOutputPanel, clearOutputPanel);
 }
