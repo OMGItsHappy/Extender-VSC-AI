@@ -20,6 +20,10 @@
       {
         "command": "open-ai-integration.showSelection",
         "title": "Show Selection"
+      },
+      {
+        "command": "open-ai-integration.getClipboardText",
+        "title": "Get Clipboard Text"
       }
     ]
   },
@@ -43,6 +47,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "dotenv": "^16.3.2",
     "openai": "^4.24.7"
   }
 }
