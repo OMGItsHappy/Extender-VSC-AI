@@ -24,6 +24,30 @@
       {
         "command": "open-ai-integration.getClipboardText",
         "title": "Get Clipboard Text"
+      },
+      {
+        "command":"open-ai-integration.openAIHelloWorld",
+        "title": "Open AI Hello World"
+      },
+      {
+        "command":"open-ai-integration.openAIExplain",
+        "title": "Open AI Explain"
+      },
+      {
+        "command":"open-ai-integration.openCustomPanel",
+        "title": "Open Custom Pannel"
+      },
+      {
+        "command":"open-ai-integration.showOutputPanel",
+        "title": "Open Bottom Custom Pannel"
+      },
+      {
+        "command":"open-ai-integration.hideOutputPanel",
+        "title": "Hide Custom Pannel"
+      },
+      {
+        "command":"open-ai-integration.appendOutputPanel",
+        "title": "Add to Custom Pannel"
       }
     ]
   },
