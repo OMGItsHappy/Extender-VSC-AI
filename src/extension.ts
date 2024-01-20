@@ -13,6 +13,8 @@ export function activate(context: vscode.ExtensionContext) {
 	const openai = new OpenAI({
 		apiKey: APIKEY
 	});
+
+	const model = "gpt-3.5-turbo";
 	
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
@@ -52,7 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let openAIHelloWorld = vscode.commands.registerCommand('open-ai-integration.openAIHelloWorld', async () => {
 		const response = await openai.chat.completions.create({
 			messages: [{ role: 'user', content: 'Say this is a test, Hello World!' }],
-    		model: 'gpt-3.5-turbo',
+    		model: model,
 		});
 
 		if (response.choices[0].message) {
@@ -66,7 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.env.clipboard.readText().then(async (text) => {
 			const response = await openai.chat.completions.create({
 				messages:[{role: "user", content: "please explain this: " + text}],
-				model: 'gpt-3.5-turbo'
+				model: model
 			});
 
 			if (response.choices[0].message) {
@@ -116,10 +118,38 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	let appendOutputPanel = vscode.commands.registerCommand('open-ai-integration.appendOutputPanel', () => {
+		customOutputPanel.show();
 		customOutputPanel.appendLine('Hello World!');
 	});
 
 	context.subscriptions.push(showOutputPanel, hideOutputPanel, appendOutputPanel);
+
+	let openAIExplainInOutputPanel = vscode.commands.registerCommand('open-ai-integration.openAIExplainInOutputPanel', async () => {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const selectedText = editor.document.getText(editor.selection);
+
+			customOutputPanel.show();
+			customOutputPanel.clear();
+			
+			const response = await openai.chat.completions.create({
+				messages:[{role: "user", content: "Please explain this: " + selectedText}],
+				model: model
+			});
+
+			if (response.choices[0].message) {
+				let answer = response.choices[0].message.content?.toString() || 'No message';
+				
+				customOutputPanel.appendLine(answer);
+			}
+			else {
+				customOutputPanel.appendLine('No message');
+			}
+		}
+	});
+
+	context.subscriptions.push(openAIExplainInOutputPanel);
+
 }
 
 

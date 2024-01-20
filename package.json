@@ -30,10 +30,6 @@
         "title": "Open AI Hello World"
       },
       {
-        "command":"open-ai-integration.openAIExplain",
-        "title": "Open AI Explain"
-      },
-      {
         "command":"open-ai-integration.openCustomPanel",
         "title": "Open Custom Pannel"
       },
@@ -48,8 +44,28 @@
       {
         "command":"open-ai-integration.appendOutputPanel",
         "title": "Add to Custom Pannel"
+      },
+      {
+        "command":"open-ai-integration.clearOutputPanel",
+        "title": "Clear Custom Pannel"
+      },
+      {
+        "command":"open-ai-integration.showCustomOutput",
+        "title": "Show Custom Output"
+      },
+      {
+        "command":"open-ai-integration.openAIExplainInOutputPanel",
+        "title":"Open AI Explain"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "open-ai-integration.openAIExplainInOutputPanel",
+          "when": "editorFocus"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
