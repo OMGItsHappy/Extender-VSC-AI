@@ -4,6 +4,8 @@ import * as vscode from 'vscode';
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
 import {TEST, APIKEY} from './env';
+import { registerCommands } from './OutputPanel';
+import { register } from 'module';
 
 
 // This method is called when your extension is activated
@@ -23,25 +25,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('open-ai-integration.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		const message = TEST || 'Default message';
-		vscode.window.showInformationMessage(message);
-	});
-
-	context.subscriptions.push(disposable);
-
-	let disposable2 = vscode.commands.registerCommand('open-ai-integration.showSelection', () => {
-		const editor = vscode.window.activeTextEditor;
-		if (editor) {
-			const selectedText = editor.document.getText(editor.selection);
-			vscode.window.showInformationMessage(selectedText);
-		}
-	});
-
-	context.subscriptions.push(disposable2);
 
 	let getClipboardText = vscode.commands.registerCommand('open-ai-integration.getClipboardText', () => {
 		vscode.env.clipboard.readText().then((text) => {
@@ -51,39 +34,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(getClipboardText);
 
-	let openAIHelloWorld = vscode.commands.registerCommand('open-ai-integration.openAIHelloWorld', async () => {
-		const response = await openai.chat.completions.create({
-			messages: [{ role: 'user', content: 'Say this is a test, Hello World!' }],
-    		model: model,
-		});
-
-		if (response.choices[0].message) {
-			vscode.window.showInformationMessage(response.choices[0].message.content?.toString() || 'No message');
-		}
-	});
-
-	context.subscriptions.push(openAIHelloWorld);
-
-	let openAIExplain = vscode.commands.registerCommand('open-ai-integration.openAIExplain', async () => {
-		vscode.env.clipboard.readText().then(async (text) => {
-			const response = await openai.chat.completions.create({
-				messages:[{role: "user", content: "please explain this: " + text}],
-				model: model
-			});
-
-			if (response.choices[0].message) {
-				vscode.window.showInformationMessage(response.choices[0].message.content?.toString() || 'No message');
-			}
-		});
-	});
-
-	context.subscriptions.push(openAIExplain);
-
 	let openCustomPanel = vscode.commands.registerCommand('open-ai-integration.openCustomPanel', () => {
 		const panel = vscode.window.createWebviewPanel(
             'customWindow', // Identifies the type of the webview. Used internally
             'Custom Window', // Title of the panel displayed to the user
-            vscode.ViewColumn.Nine, // Editor column to show the new webview panel in.
+            vscode.ViewColumn.One, // Editor column to show the new webview panel in.
             {} // Webview options. More on these later.
         );
 
@@ -107,48 +62,7 @@ export function activate(context: vscode.ExtensionContext) {
 			</html>`;
 	}
 
-	let customOutputPanel = vscode.window.createOutputChannel('Custom Output');
-
-	let showOutputPanel = vscode.commands.registerCommand('open-ai-integration.showOutputPanel', () => {
-		customOutputPanel.show();
-	});
-
-	let hideOutputPanel = vscode.commands.registerCommand('open-ai-integration.hideOutputPanel', () => {
-		customOutputPanel.hide();
-	});
-
-	let appendOutputPanel = vscode.commands.registerCommand('open-ai-integration.appendOutputPanel', () => {
-		customOutputPanel.show();
-		customOutputPanel.appendLine('Hello World!');
-	});
-
-	context.subscriptions.push(showOutputPanel, hideOutputPanel, appendOutputPanel);
-
-	let openAIExplainInOutputPanel = vscode.commands.registerCommand('open-ai-integration.openAIExplainInOutputPanel', async () => {
-		const editor = vscode.window.activeTextEditor;
-		if (editor) {
-			const selectedText = editor.document.getText(editor.selection);
-
-			customOutputPanel.show();
-			customOutputPanel.clear();
-			
-			const response = await openai.chat.completions.create({
-				messages:[{role: "user", content: "Please explain this: " + selectedText}],
-				model: model
-			});
-
-			if (response.choices[0].message) {
-				let answer = response.choices[0].message.content?.toString() || 'No message';
-				
-				customOutputPanel.appendLine(answer);
-			}
-			else {
-				customOutputPanel.appendLine('No message');
-			}
-		}
-	});
-
-	context.subscriptions.push(openAIExplainInOutputPanel);
+	registerCommands(context, openai, model);
 
 }
 
