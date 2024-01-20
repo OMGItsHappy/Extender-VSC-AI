@@ -26,38 +26,54 @@
         "title": "Get Clipboard Text"
       },
       {
-        "command":"open-ai-integration.openAIHelloWorld",
+        "command": "open-ai-integration.openAIHelloWorld",
         "title": "Open AI Hello World"
       },
       {
-        "command":"open-ai-integration.openCustomPanel",
+        "command": "open-ai-integration.openCustomPanel",
         "title": "Open Custom Pannel"
       },
       {
-        "command":"open-ai-integration.showOutputPanel",
+        "command": "open-ai-integration.showOutputPanel",
         "title": "Open Bottom Custom Pannel"
       },
       {
-        "command":"open-ai-integration.hideOutputPanel",
+        "command": "open-ai-integration.hideOutputPanel",
         "title": "Hide Custom Pannel"
       },
       {
-        "command":"open-ai-integration.clearOutputPanel",
+        "command": "open-ai-integration.clearOutputPanel",
         "title": "Clear Custom Pannel"
       },
       {
-        "command":"open-ai-integration.showCustomOutput",
+        "command": "open-ai-integration.showCustomOutput",
         "title": "Show Custom Output"
       },
       {
-        "command":"open-ai-integration.openAIExplainInOutputPanel",
-        "title":"Open AI Explain"
+        "command": "open-ai-integration.openAIExplainInOutputPanel",
+        "title": "Open AI Explain"
+      },
+      {
+        "command": "open-ai-integration.optionSelector",
+        "title": "Open AI Options >"
+      },
+      {
+        "command": "open-ai-integration.checkForErrors",
+        "title": "Check For and Explain Errors"
+      },
+      {
+        "commad": "open-ai-integration.documentThis",
+        "title": "Document Selection With Open AI"
       }
     ],
     "menus": {
       "editor/context": [
         {
           "command": "open-ai-integration.openAIExplainInOutputPanel",
+          "when": "editorFocus"
+        },
+        {
+          "command": "open-ai-integration.optionSelector",
           "when": "editorFocus"
         }
       ]
@@ -84,6 +100,7 @@
   },
   "dependencies": {
     "dotenv": "^16.3.2",
+    "marked": "^11.1.1",
     "openai": "^4.24.7"
   }
 }
