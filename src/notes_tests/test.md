@@ -1,5 +1,13 @@
-### First Item
-I need to create a python venv
+# I want to get better at go
 
-### Second Item
-I need to work on homework
+# I need to Learn some new healthy foods to cook
+
+# I need to Learn some new healthy foods to cook
+
+# I need to Learn some new healthy foods to cook
+
+# I need to Learn some new healthy foods to cook
+
+# I need to Learn some new healthy foods to cook
+
+# I need to Learn some new healthy foods to cook

@@ -1,31 +1,47 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const fs = __importStar(require("fs"));
+exports.getNotes = void 0;
+var fs = require("fs");
 var markdown = "";
-markdown = fs.readFileSync('/Users/oliver/repos/VSC-AI-Extension/open-ai-integration/notes_tests/test.md', 'utf8');
-console.log(markdown);
-console.log("Hello World");
-//# sourceMappingURL=markdown_parser.js.map
+markdown = fs.readFileSync('/Users/oliver/repos/VSC-AI-Extension/open-ai-integration/src/notes_tests/test.md', 'utf8');
+var lines = markdown.split('\n');
+var notes = Array();
+for (var i = 0; i < lines.length; i++) {
+    if (lines[i].startsWith('#')) {
+        var name = lines[i].replace('#', '').trim();
+        var text = "";
+        i++;
+        while (i < lines.length && !lines[i].startsWith('#')) {
+            text += lines[i] + '\n';
+            i++;
+        }
+        i--;
+        notes.push({
+            name: name,
+            text: text
+        });
+    }
+}
+function getNotes(markdown) {
+    var lines = markdown.split('\n');
+    var notes = Array();
+    for (var i = 0; i < lines.length; i++) {
+        if (lines[i].startsWith('#')) {
+            var name = lines[i].replace('#', '').trim();
+            var text = "";
+            i++;
+            while (i < lines.length && !lines[i].startsWith('#')) {
+                text += lines[i] + '\n';
+                i++;
+            }
+            i--;
+            notes.push({
+                name: name,
+                text: text
+            });
+        }
+    }
+    return notes;
+}
+exports.getNotes = getNotes;
+console.log(getNotes(markdown));

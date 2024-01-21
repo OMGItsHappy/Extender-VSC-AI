@@ -1,12 +1,24 @@
 import * as vscode from 'vscode';
 import OpenAI from 'openai';
+import { getNotes } from './markdown_parser';
 
+/**
+ * Registers a set of Visual Studio Code commands for integration with OpenAI.
+ * 
+ * @param {vscode.ExtensionContext} context - The context in which the extension is executed.
+ * This is provided by the Visual Studio Code extension runtime.
+ * @param {OpenAI} openai - An instance of the OpenAI class that allows interaction with the OpenAI API.
+ * @param {string} model - The AI model to be used for OpenAI queries. 
+ * Defaults to "gpt-3.5-turbo" if not specified.
+ */
 export function registerCommands(
     context : vscode.ExtensionContext, 
     openai : OpenAI, 
-    model : string =  "gpt-4-1106-preview"
+    model : string =  "gpt-3.5-turbo"
     ){
 
+
+    // Functions to work with this custom ouptut channel
     let customOutputPanel = vscode.window.createOutputChannel('Custom Output');
 
     let showOutputPanel = vscode.commands.registerCommand('open-ai-integration.showOutputPanel', () => {
@@ -21,11 +33,44 @@ export function registerCommands(
         customOutputPanel.clear();
     });
 
+    // Resets the custom output panel
     function clearOutputPanelAndShow(outputPanel : vscode.OutputChannel) {
         outputPanel.clear();
         outputPanel.show();
     }
 
+    /**
+     * This function asynchronously requests a chat completion from the OpenAI API using a specified model and user input text. 
+     * It returns the AI's response as a string.
+     * 
+     * @param {OpenAI} openai - An instance of the OpenAI class, initialized with necessary API keys and configurations.
+     * @param {string} modelToUse - (Optional) The ID of the model to use for generating the response. Defaults to a variable 'model'.
+     * @param {string} text - The input text from the user that will be sent to the model as a prompt.
+     * 
+     * @returns {Promise<string>} A Promise that resolves to the string of the AI's response. If the AI returns no message or no response,
+     * the function will return a default response message indicating the absence of content.
+     * 
+     * Example usage:
+     * 
+     * (async () => {
+     *     const openai = new OpenAI(apiKey); // Create a new OpenAI instance with the required API key.
+     *     const userText = "Hello, how are you?";
+     *     const response = await chat(openai, "gpt-3.5-turbo", userText); // Call the chat function with user text.
+     *     console.log(response); // Log the AI's response.
+     * })();
+     * 
+     * Function implementation:
+     * 
+     * 1. It initiates an asynchronous operation using the "await" keyword.
+     * 2. It sends a POST request to the OpenAI API's chat completions endpoint with a message object containing the input text and a model to use.
+     * 3. The function waits for the API's response, which contains the AI-generated text.
+     * 4. Once received, it checks if there is a message within the first choice object of the response.
+     * 5. If a message exists, it extracts the content of the message, converts it to a string, and returns it.
+     * 6. If there is no message content or if OpenAI's response does not contain a message, it returns a default message.
+     * 
+     * Note: Since this function uses async/await, it returns a Promise, and any caller of this function should await its result
+     * or use Promises (e.g., then/catch) syntax to handle the asynchronous response.
+     */
     async function chat(openai: OpenAI, modelToUse:string = model, text: string)
     {   
         const response = await openai.chat.completions.create({
@@ -43,24 +88,32 @@ export function registerCommands(
         }
     }
 
+    // Have the OpenAI model explain what the highlighted code does and outputs it to the custom panel
     let openAIExplainInOutputPanel = vscode.commands.registerCommand('open-ai-integration.openAIExplainInOutputPanel', async () => {
         const editor = vscode.window.activeTextEditor;
+        // If we are in the text editor
         if (editor) {
             const selectedText = editor.document.getText(editor.selection);
 
             clearOutputPanelAndShow(customOutputPanel);
 
             customOutputPanel.appendLine("Please wait while \"I\" think...");
-
+            
+            // Send our selection to the chat model
             const response = await chat(openai, model, "Please explain this: " + selectedText);
             
+            // Output the response
             customOutputPanel.appendLine(response);
         }
     });
 
+
+    // Has the OpenAI model check selected code for erros and if there is any, have it explain them.
     let checkForErrors = vscode.commands.registerCommand('open-ai-integration.checkForErrors', async () => {
         const editor = vscode.window.activeTextEditor;
+        // If we are in the text editor
         if (editor) {
+            // Get the selected text and what file extension it is.
             const selectedText = editor.document.getText(editor.selection);
             const fileName = editor.document.fileName;
 
@@ -70,6 +123,7 @@ export function registerCommands(
 
             customOutputPanel.appendLine("Please wait while \"I\" think...");
 
+            // Have the chat bot review the code
             const response = await chat(
                 openai, 
                 model, 
@@ -78,12 +132,15 @@ export function registerCommands(
                 Please respond in proper language specifc syntax.
                 The language is ${extension}: \n\n\`\`\`${selectedText}\`\`\``);
             
+            // Output the response
             customOutputPanel.appendLine(response);
         }
     });
 
+    // Have the OpenAI model create documentation for the highlighted code and paste above in place
     let documentThis = vscode.commands.registerCommand('open-ai-integration.documentThis', async () => {
         const editor = vscode.window.activeTextEditor;
+        // If we are in the text editor
         if (editor) {
             const selectedText = editor.document.getText(editor.selection);
 
@@ -91,17 +148,18 @@ export function registerCommands(
 
             customOutputPanel.appendLine("Please wait while \"I\" think...");
             
+            // Ask the model to document the code
             const response = await openai.chat.completions.create({
                 messages:[{role: "user", content: "Please provide thorough documentation on this code as a comment matching the language. If a function make sure to list any inputs and outputs that may be provided: \n\n" + selectedText}],
                 model: model
             });
 
-            // output above the selection
+            // Output above the selection
             const startPosition = editor.selection.start;
             const printingPosition = startPosition.with({line: startPosition.line, character: 0});
 
             const outputText = response.choices[0].message.content ?? "There was an error";
-            // add a newline above
+            // Add a newline above code
             editor.edit((textEdit) => {
                 textEdit.insert(startPosition, outputText + "\n");
             });
@@ -126,9 +184,70 @@ export function registerCommands(
             }
         }
     });
+
+    let notesHelp = vscode.commands.registerCommand('open-ai-integration.notesHelp', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            let statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+            statusBarItem.text = "generateing notes...";
+            statusBarItem.show();
+
+            const fileName = editor.document.fileName;
+            if (fileName.split('.').pop() !== "md") {
+                vscode.window.showErrorMessage("Please select a markdown file");
+                return;
+            }
+
+            const fullText = editor.document.getText();
+            const start = 0;
+            const end = fullText.length;
+
+            var notesData = getNotes(fullText || "");
+
+            var notes = "";
+
+            function noteToString(note: {name: string, text: string}) {
+                return "# " + note.name + "\n\n" + note.text + "\n\n";
+            }
+            
+            function notesToString(notes: Array<{name: string, text: string}>) {
+                var output = "";
+                for (let i = 0; i < notes.length; i++) {
+                    output += noteToString(notes[i]);
+                }
+                return output;
+            }
+
+            for (let i = 0; i < notesData.length; i++) {
+                let note = notesData[i];
+                
+                const message = 
+                "Please help me get started. This is the title of the note: " + 
+                note.name + 
+                "\n\nAnd here is a description: " + 
+                note.text +
+                "\n\nPlease only respond with your response, do not include the prompt. Thank you. I will not add any futher information.";
+            
+                statusBarItem.text = "Generating note " + (i + 1) + " of " + notesData.length + "...";
+
+                const response = await chat(openai, model, message);
+            
+                note += "# " + note.name + "\n\n" + note.text + "\n\n" + response + "\n\n";
+            }
+
+            // output above the selection
+
+            editor.edit((textEdit) => {
+                textEdit.replace(new vscode.Range(start, 0, end, 0), notes);
+            });
+
+            statusBarItem.text = "done";
+            statusBarItem.hide();
+        }
+    });
     
     
-    
+    // Add all of the custom commands
     context.subscriptions.push(
         optionSelector, 
         showOutputPanel, 
@@ -136,6 +255,7 @@ export function registerCommands(
         hideOutputPanel, 
         openAIExplainInOutputPanel, 
         checkForErrors, 
-        documentThis
+        documentThis,
+        notesHelp
     );
 }

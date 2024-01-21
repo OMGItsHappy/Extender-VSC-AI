@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
 		apiKey: APIKEY
 	});
 
-	const model = "gpt-3.5-turbo";
+	const model = "gpt-4-1106-preview";
 	
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
@@ -26,6 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 
+	// Displays the latest clipboard entry in an popup info box
 	let getClipboardText = vscode.commands.registerCommand('open-ai-integration.getClipboardText', () => {
 		vscode.env.clipboard.readText().then((text) => {
 			vscode.window.showInformationMessage(text);
@@ -34,6 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(getClipboardText);
 
+	// Opens a new custom panel that displays basic HTML
 	let openCustomPanel = vscode.commands.registerCommand('open-ai-integration.openCustomPanel', () => {
 		const panel = vscode.window.createWebviewPanel(
             'customWindow', // Identifies the type of the webview. Used internally
@@ -48,6 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(openCustomPanel);
 
+	// Returns the basic HTML contents.
 	function getWebviewContent() {
 		return `<!DOCTYPE html>
 			<html lang="en">

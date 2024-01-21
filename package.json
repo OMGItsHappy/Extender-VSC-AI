@@ -62,8 +62,12 @@
         "title": "Check For and Explain Errors"
       },
       {
-        "commad": "open-ai-integration.documentThis",
+        "command": "open-ai-integration.documentThis",
         "title": "Document Selection With Open AI"
+      },
+      {
+        "command":"open-ai-integration.notesHelp",
+        "title": "Open AI Notes Help"
       }
     ],
     "menus": {
