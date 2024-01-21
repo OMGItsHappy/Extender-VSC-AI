@@ -39,7 +39,7 @@ export function getNotes(markdown: String) {
     for (let i = 0; i < lines.length; i++) {
         // If we have a header
         if (lines[i].startsWith('#')) {
-            var name = lines[i].replace('#', '').trim();
+            var name = lines[i].trim();
             var text = "";
             var start = i;
             i++;
@@ -58,8 +58,7 @@ export function getNotes(markdown: String) {
             notes.push({
                 name: name,
                 text: text,
-                start: start,
-                end: end
+                response: ""
             });
         }
     }

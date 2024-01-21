@@ -150,7 +150,7 @@ export function registerCommands(
             
             // Ask the model to document the code
             const response = await openai.chat.completions.create({
-                messages:[{role: "user", content: "Please provide thorough documentation on this code as a comment matching the language. If a function make sure to list any inputs and outputs that may be provided: \n\n" + selectedText}],
+                messages:[{role: "user", content: "Please provide thorough documentation on this code as a comment in the same file. Make sure that you do not write any extra markdown. Do not duplicate the code. Focus only on providing the documentation. If a function make sure to list any inputs and outputs that may be provided: \n\n" + selectedText}],
                 model: model
             });
 
@@ -159,9 +159,16 @@ export function registerCommands(
             const printingPosition = startPosition.with({line: startPosition.line, character: 0});
 
             const outputText = response.choices[0].message.content ?? "There was an error";
+
+            // Remove the first and last line of the response
+            const lines = outputText.split("\n");
+            lines.shift();
+            lines.pop();
+            const formattedOutput = lines.join("\n");
+            
             // Add a newline above code
             editor.edit((textEdit) => {
-                textEdit.insert(startPosition, outputText + "\n");
+                textEdit.insert(startPosition, formattedOutput + "\n");
             });
         }
     });
@@ -188,8 +195,8 @@ export function registerCommands(
     let notesHelp = vscode.commands.registerCommand('open-ai-integration.notesHelp', async () => {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
-            let statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-            statusBarItem.text = "generateing notes...";
+            let statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 1000);
+            statusBarItem.text = "Generateing notes...";
             statusBarItem.show();
 
             const fileName = editor.document.fileName;
@@ -199,18 +206,17 @@ export function registerCommands(
             }
 
             const fullText = editor.document.getText();
-            const start = 0;
-            const end = fullText.length;
 
             var notesData = getNotes(fullText || "");
 
-            var notes = "";
-
-            function noteToString(note: {name: string, text: string}) {
-                return "# " + note.name + "\n\n" + note.text + "\n\n";
+            function noteToString(note: {name: string, text: string, response: string}) {
+                let name = note.name + "\n";
+                let text = note.text.trim() + (note.text.trim() === "" ? "\n" : "\n\n");
+                let response = note.response.trim() + (note.response.trim() === "" ? "" : "\n\n");
+                return name + text + response;
             }
             
-            function notesToString(notes: Array<{name: string, text: string}>) {
+            function notesToString(notes: Array<{name: string, text: string, response: string}>) {
                 var output = "";
                 for (let i = 0; i < notes.length; i++) {
                     output += noteToString(notes[i]);
@@ -226,20 +232,23 @@ export function registerCommands(
                 note.name + 
                 "\n\nAnd here is a description: " + 
                 note.text +
-                "\n\nPlease only respond with your response, do not include the prompt. Thank you. I will not add any futher information.";
+                "\n\nPlease only respond with your response, do not include the prompt. DO NOT RESPOND WITH ANYTHING I SENT YOU IN YOUR RESPONE. \
+                Thank you. I will not add any futher information.\
+                Please use markdown syntax in your response! Your response will be displayed in a markdown file. Wrap your response in a block quote.";
             
                 statusBarItem.text = "Generating note " + (i + 1) + " of " + notesData.length + "...";
 
                 const response = await chat(openai, model, message);
-            
-                note += "# " + note.name + "\n\n" + note.text + "\n\n" + response + "\n\n";
+
+                notesData[i].response = response;
+
+                editor.edit((textEdit) => {
+                    let notesText = notesToString(notesData);
+                    textEdit.replace(new vscode.Range(0, 0, notesText.length, 0), notesText);
+                });
             }
 
             // output above the selection
-
-            editor.edit((textEdit) => {
-                textEdit.replace(new vscode.Range(start, 0, end, 0), notes);
-            });
 
             statusBarItem.text = "done";
             statusBarItem.hide();

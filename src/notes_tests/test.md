@@ -1,13 +1,7 @@
 # I want to get better at go
+Give me a response in less then 50chars
 
-# I need to Learn some new healthy foods to cook
+# I want to learn to ride a bike
 
-# I need to Learn some new healthy foods to cook
 
-# I need to Learn some new healthy foods to cook
-
-# I need to Learn some new healthy foods to cook
-
-# I need to Learn some new healthy foods to cook
-
-# I need to Learn some new healthy foods to cook
+# Learn how to juggle
