@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import {TEST, APIKEY} from './env';
 import { registerCommands } from './OutputPanel';
 import { register } from 'module';
+import { registerNotes } from './markdown_parser';
 
 
 // This method is called when your extension is activated
@@ -65,7 +66,8 @@ export function activate(context: vscode.ExtensionContext) {
 			</html>`;
 	}
 
-	registerCommands(context, openai, model);
+	registerCommands(context, openai, model);	
+	registerNotes(context, openai, model);
 
 }
 

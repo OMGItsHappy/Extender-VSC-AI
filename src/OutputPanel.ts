@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import OpenAI from 'openai';
-import { getNotes } from './markdown_parser';
+import { chat } from './utils';
 
 /**
  * Registers a set of Visual Studio Code commands for integration with OpenAI.
@@ -71,22 +71,6 @@ export function registerCommands(
      * Note: Since this function uses async/await, it returns a Promise, and any caller of this function should await its result
      * or use Promises (e.g., then/catch) syntax to handle the asynchronous response.
      */
-    async function chat(openai: OpenAI, modelToUse:string = model, text: string)
-    {   
-        const response = await openai.chat.completions.create({
-            messages:[{role: "user", content: text}],
-            model: modelToUse
-        });
-
-        if (response.choices[0].message) {
-            let answer = response.choices[0].message.content?.toString() || 'No message';
-            
-            return answer;
-        }
-        else {
-            return "No Response";
-        }
-    }
 
     // Have the OpenAI model explain what the highlighted code does and outputs it to the custom panel
     let openAIExplainInOutputPanel = vscode.commands.registerCommand('open-ai-integration.openAIExplainInOutputPanel', async () => {
@@ -192,68 +176,7 @@ export function registerCommands(
         }
     });
 
-    let notesHelp = vscode.commands.registerCommand('open-ai-integration.notesHelp', async () => {
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-            let statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 1000);
-            statusBarItem.text = "Generateing notes...";
-            statusBarItem.show();
-
-            const fileName = editor.document.fileName;
-            if (fileName.split('.').pop() !== "md") {
-                vscode.window.showErrorMessage("Please select a markdown file");
-                return;
-            }
-
-            const fullText = editor.document.getText();
-
-            var notesData = getNotes(fullText || "");
-
-            function noteToString(note: {name: string, text: string, response: string}) {
-                let name = note.name + "\n";
-                let text = note.text.trim() + (note.text.trim() === "" ? "\n" : "\n\n");
-                let response = note.response.trim() + (note.response.trim() === "" ? "" : "\n\n");
-                return name + text + response;
-            }
-            
-            function notesToString(notes: Array<{name: string, text: string, response: string}>) {
-                var output = "";
-                for (let i = 0; i < notes.length; i++) {
-                    output += noteToString(notes[i]);
-                }
-                return output;
-            }
-
-            for (let i = 0; i < notesData.length; i++) {
-                let note = notesData[i];
-                
-                const message = 
-                "Please help me get started. This is the title of the note: " + 
-                note.name + 
-                "\n\nAnd here is a description: " + 
-                note.text +
-                "\n\nPlease only respond with your response, do not include the prompt. DO NOT RESPOND WITH ANYTHING I SENT YOU IN YOUR RESPONE. \
-                Thank you. I will not add any futher information.\
-                Please use markdown syntax in your response! Your response will be displayed in a markdown file. Wrap your response in a block quote.";
-            
-                statusBarItem.text = "Generating note " + (i + 1) + " of " + notesData.length + "...";
-
-                const response = await chat(openai, model, message);
-
-                notesData[i].response = response;
-
-                editor.edit((textEdit) => {
-                    let notesText = notesToString(notesData);
-                    textEdit.replace(new vscode.Range(0, 0, notesText.length, 0), notesText);
-                });
-            }
-
-            // output above the selection
-
-            statusBarItem.text = "done";
-            statusBarItem.hide();
-        }
-    });
+    
     
     
     // Add all of the custom commands
@@ -265,6 +188,5 @@ export function registerCommands(
         openAIExplainInOutputPanel, 
         checkForErrors, 
         documentThis,
-        notesHelp
     );
 }
