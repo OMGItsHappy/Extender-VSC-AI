@@ -25,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "open-ai-integration" is now active!');
 
 	registerPanels(context, openai, model);	
-	registerNotes(context, openai, model);
+	registerNotes(context, openai, "gpt-4");
 
 }
 

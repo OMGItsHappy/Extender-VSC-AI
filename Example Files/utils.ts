@@ -31,3 +31,36 @@ export function notesToString(notes: Array<{name: string, text: string, response
     }
     return output;
 }
+
+
+
+async function fetchData(url: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      // Simulate an asynchronous HTTP request
+      setTimeout(() => {
+        // Simulate an error condition (e.g., network error)
+        reject(new Error('Failed to fetch data. Network error.'));
+      }, 2000);
+    });
+  }
+  
+  async function processData() {
+    try {
+      const data = await fetchData('https://example.com/api/data');
+      console.log('Received data:', data);
+    } catch (error) {
+      console.error('Error:', error.message);
+      throw new Error('Failed to process data.'); // Propagate the error
+    }
+  }
+  
+  async function main() {
+    try {
+      await processData();
+      console.log('Processing complete.');
+    } catch (error) {
+      console.error('Main Error:', error.message);
+    }
+  }
+  
+  main();
