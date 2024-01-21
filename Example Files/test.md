@@ -1,3 +1,5 @@
+Run Notes Help to get AI Input on your notes.
+
 # I want to get better at go
 Give me a response in less then 50chars
 
