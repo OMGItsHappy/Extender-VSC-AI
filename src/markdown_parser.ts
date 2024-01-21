@@ -127,4 +127,3 @@ export function registerNotes(
 
     context.subscriptions.push(notesHelp);
 }
-//console.log(getNotes(markdown));

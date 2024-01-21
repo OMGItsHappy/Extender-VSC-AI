@@ -14,26 +14,6 @@
   "contributes": {
     "commands": [
       {
-        "command": "open-ai-integration.helloWorld",
-        "title": "Hello World"
-      },
-      {
-        "command": "open-ai-integration.showSelection",
-        "title": "Show Selection"
-      },
-      {
-        "command": "open-ai-integration.getClipboardText",
-        "title": "Get Clipboard Text"
-      },
-      {
-        "command": "open-ai-integration.openAIHelloWorld",
-        "title": "Open AI Hello World"
-      },
-      {
-        "command": "open-ai-integration.openCustomPanel",
-        "title": "Open Custom Pannel"
-      },
-      {
         "command": "open-ai-integration.showOutputPanel",
         "title": "Open Bottom Custom Pannel"
       },
@@ -72,10 +52,6 @@
     ],
     "menus": {
       "editor/context": [
-        {
-          "command": "open-ai-integration.openAIExplainInOutputPanel",
-          "when": "editorFocus"
-        },
         {
           "command": "open-ai-integration.optionSelector",
           "when": "editorFocus"
