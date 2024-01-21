@@ -11,7 +11,7 @@ import { chat } from './utils';
  * @param {string} model - The AI model to be used for OpenAI queries. 
  * Defaults to "gpt-3.5-turbo" if not specified.
  */
-export function registerCommands(
+export function registerPanels(
     context : vscode.ExtensionContext, 
     openai : OpenAI, 
     model : string =  "gpt-3.5-turbo"

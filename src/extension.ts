@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
 import {TEST, APIKEY} from './env';
-import { registerCommands } from './OutputPanel';
+import { registerPanels} from './OutputPanel';
 import { register } from 'module';
 import { registerNotes } from './markdown_parser';
 
@@ -24,7 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "open-ai-integration" is now active!');
 
-	registerCommands(context, openai, model);	
+	registerPanels(context, openai, model);	
 	registerNotes(context, openai, model);
 
 }
